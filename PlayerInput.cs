@@ -15,28 +15,29 @@ public class PlayerInput : MonoBehaviour
     {
         MouseInput = value.Get<Vector2>();
 
-        if (TargetFinder.OnTarget)
+        if (TargetFinder.Instance.OnTarget)
         {
             if (MouseInput.x > .5)
             {
-                TargetFinder.TargetSelect(1);
+                TargetFinder.Instance.TargetSelect(1);
             }
             if (MouseInput.x <= -.5)
             {
-                TargetFinder.TargetSelect(-1);
+                TargetFinder.Instance.TargetSelect(-1);
             }
         }
     }
     
     public void OnTargetLock(InputValue button)
     {
-        if (button.isPressed && !TargetFinder.OnTarget)
+        if (button.isPressed && !TargetFinder.Instance.OnTarget)
         {
-            TargetFinder.TargetLockOn();
+            TargetFinder.Instance.TargetLockOn();
+            TargetMarkerC.MarkerActive();
         }
-        else if (button.isPressed && TargetFinder.OnTarget)
+        else if (button.isPressed && TargetFinder.Instance.OnTarget)
         {
-            TargetFinder.TargetLockOff();
+            TargetFinder.Instance.TargetLockOff();
         }
     }
 }

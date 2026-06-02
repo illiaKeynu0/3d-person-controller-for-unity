@@ -9,17 +9,17 @@ public class CameraController : MonoBehaviour
     
     private void Awake()
     {
-        _collisionMask = LayerMask.GetMask("Obstacles");
+        _collisionMask = LayerMask.GetMask("Obstructions");
     }
 
     private void Start()
     {
-        _pivot = GameObject.FindGameObjectWithTag("Pivot").GetComponentInParent<Transform>();
+        _pivot = GameObject.FindGameObjectWithTag("CameraPivot").GetComponentInParent<Transform>();
         
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        _originalCameraDistance = 3.5f;
+        _originalCameraDistance = 6f;
     }
     
     private void LateUpdate()

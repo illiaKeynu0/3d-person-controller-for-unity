@@ -21,9 +21,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        if (TargetFinder.OnTarget)
+        if (TargetFinder.Instance.OnTarget)
         {
-            _targetFwd = new Vector3((TargetFinder.CurrentTarget.position - _camera.transform.position).x, 0f, (TargetFinder.CurrentTarget.position - _camera.transform.position).z);
+            _targetFwd = new Vector3((TargetFinder.Instance.CurrentTarget.position - _camera.transform.position).x, 0f, (TargetFinder.Instance.CurrentTarget.position - _camera.transform.position).z);
             _targetR = Vector3.Cross( Vector3.up, _targetFwd.normalized);
             
             OnTargetMovement(_targetR, _targetFwd, PlayerInput.MoveInput);

@@ -4,19 +4,25 @@ using UnityEngine;
 
 public class TargetFinder : MonoBehaviour
 {
-    public static Transform CurrentTarget;
-
-    public static bool OnTarget;
+    public static TargetFinder Instance { get; private set; }
+    public Transform CurrentTarget { get; private set; }
+    public bool OnTarget { get; private set; }
     
-    private static TargetFinder Instance;
-    private static List<Transform> _targets;
-    private static Camera _camera;
+    private List<Transform> _targets;
+    private Camera _camera;
 
-    private static bool _cd;
+    private bool _cd;
 
     private void Awake()
     {
-        Instance = this;
+        if (!Instance)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void Start()
@@ -30,39 +36,49 @@ public class TargetFinder : MonoBehaviour
         _cd = false;
     }
 
-    public static void TargetLockOn()
+    private void Update()
+    {
+        if (CurrentTarget && Vector3.Distance(_camera.transform.position, CurrentTarget.position) > 20)
+        {
+            TargetLockOff();
+        }
+    }
+
+    public void TargetLockOn()
     {
         CurrentTarget = TargetFind();
         
         if (CurrentTarget)
         {
+            CurrentTarget.gameObject.GetComponent<TargetC>().ActiveTarget();
             OnTarget = true;
         }
     }
 
-    public static void TargetLockOff()
+    public void TargetLockOff()
     {
+        CurrentTarget.gameObject.GetComponent<TargetC>().NonActiveTarget();
         CurrentTarget = null;
         OnTarget = false;
     }
     
-    public static void AddTarget(Transform transform)
+    public void AddTarget(Transform T)
     {
-        if (!_targets.Contains(transform))
+        if (!_targets.Contains(T))
         {
-            _targets.Add(transform);
+            _targets.Add(T);
         }
     }
 
-    public static void RemoveTarget(Transform transform)
+    public void RemoveTarget(Transform T)
     {
-        if (_targets.Contains(transform))
+        if (_targets.Contains(T))
         {
-            _targets.Remove(transform);
+            _targets.Remove(T);
         }
     }
 
-    public static void TargetSelect(int i)
+    public void TargetSelect(int i)
     {
         var tCycle = new List<Transform>();
 
@@ -82,14 +98,18 @@ public class TargetFinder : MonoBehaviour
             var nextIndex = currenIndex + i;
             if (nextIndex >= 0 && nextIndex < tCycle.Count)
             {
+                CurrentTarget.gameObject.GetComponent<TargetC>().NonActiveTarget();
+                
                 CurrentTarget = tCycle[nextIndex];
+                CurrentTarget.gameObject.GetComponent<TargetC>().ActiveTarget();
+                
                 _cd = true;
-                Instance.StartCoroutine("ResetCd");
+                StartCoroutine(ResetCd());
             }
         }
     }
 
-    private static Transform TargetFind()
+    private Transform TargetFind()
     {
         var topDot = 0f;
         Transform pickedTarget = null;
@@ -98,7 +118,7 @@ public class TargetFinder : MonoBehaviour
         {
             var targetDot =
                 Vector3.Dot(_camera.transform.forward.normalized, (target.transform.position - _camera.transform.position).normalized);
-            if (targetDot < .9f) continue;
+            if (targetDot < .7f) continue;
 
             if (targetDot >= topDot)
             {
@@ -112,7 +132,7 @@ public class TargetFinder : MonoBehaviour
     
     private IEnumerator ResetCd()
     {
-        yield return new WaitForSecondsRealtime(0.5f);
+        yield return new WaitForSecondsRealtime(0.25f);
         _cd = false;
     }
 }
