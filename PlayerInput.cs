@@ -3,9 +3,23 @@ using UnityEngine.InputSystem;
 
 public class PlayerInput : MonoBehaviour
 {
-    public static Vector2 MoveInput;
-    public static Vector2 MouseInput;
+    public static PlayerInput Instance { get; private set; }
     
+    public Vector2 MoveInput { get; private set; }
+    public Vector2 MouseInput { get; private set; }
+
+    private void Awake()
+    {
+        if (!Instance)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
+    }
+
     public void OnMove(InputValue value)
     {
         MoveInput = value.Get<Vector2>();

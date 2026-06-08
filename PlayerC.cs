@@ -2,6 +2,9 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public static PlayerController Instance;
+    public Vector3 move;
+    
     private Camera _camera;
     private CharacterController _controller;
     
@@ -11,11 +14,19 @@ public class PlayerController : MonoBehaviour
     
     private void Awake()
     {
-        _controller = GetComponent<CharacterController>();
+        if (!Instance)
+        {
+            Instance = this;
+        }
+        else
+        {
+            Destroy(gameObject);
+        }
     }
 
     private void Start()
     {
+        _controller = GetComponent<CharacterController>();
         _camera = Camera.main;
     }
 
@@ -23,17 +34,18 @@ public class PlayerController : MonoBehaviour
     {
         if (TargetFinder.Instance.OnTarget)
         {
-            _targetFwd = new Vector3((TargetFinder.Instance.CurrentTarget.position - _camera.transform.position).x, 0f, (TargetFinder.Instance.CurrentTarget.position - _camera.transform.position).z);
+            _targetFwd = new Vector3((TargetFinder.Instance.CurrentTarget.position - _camera.transform.position).x, 0f, 
+                (TargetFinder.Instance.CurrentTarget.position - _camera.transform.position).z);
             _targetR = Vector3.Cross( Vector3.up, _targetFwd.normalized);
             
-            OnTargetMovement(_targetR, _targetFwd, PlayerInput.MoveInput);
+            OnTargetMovement(_targetR, _targetFwd, PlayerInput.Instance.MoveInput);
         }
         else
         {
             _camR = new Vector3(_camera.transform.right.x, 0f, _camera.transform.right.z);
             _camFwd = new Vector3(_camera.transform.forward.x, 0f, _camera.transform.forward.z);
             
-            BaseMovement(_camR, _camFwd, PlayerInput.MoveInput);
+            BaseMovement(_camR, _camFwd, PlayerInput.Instance.MoveInput);
         }
     }
 
@@ -41,8 +53,8 @@ public class PlayerController : MonoBehaviour
     {
         if (_controller.isGrounded)
         {
-            var move = moveInput.x * camR + moveInput.y * camFwd;
-            _controller.Move(move.normalized * (10 * Time.deltaTime));
+            move = moveInput.x * camR + moveInput.y * camFwd;
+            _controller.Move(move.normalized * (8 * Time.deltaTime));
 
             if (move != Vector3.zero)
             {
@@ -52,7 +64,7 @@ public class PlayerController : MonoBehaviour
         }
         else
         {
-            _velocity.y += Gravity;
+            _velocity.y = Gravity;
             _controller.Move(_velocity);
         }
     }
@@ -61,15 +73,15 @@ public class PlayerController : MonoBehaviour
     { 
         if (_controller.isGrounded)
         {
-            var move = moveInput.x * targetR + moveInput.y * targetFwd;
-            _controller.Move(move.normalized * (10 * Time.deltaTime));
+            move = moveInput.x * targetR + moveInput.y * targetFwd;
+            _controller.Move(move.normalized * (4 * Time.deltaTime));
             
             transform.rotation =
                 Quaternion.RotateTowards(transform.rotation, Quaternion.LookRotation(targetFwd, Vector3.up), 5);
         }
         else
         {
-            _velocity.y += Gravity;
+            _velocity.y = Gravity;
             _controller.Move(_velocity);
         }
     }

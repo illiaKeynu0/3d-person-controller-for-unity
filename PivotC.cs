@@ -2,7 +2,7 @@ using UnityEngine;
 
 public class PivotController : MonoBehaviour
 {
-    private Transform _player;
+    public Transform player;
     private Camera _camera;
 
     private bool _wasTargeting, _isRecoveringRotation;
@@ -10,13 +10,12 @@ public class PivotController : MonoBehaviour
 
     private void Start()
     {
-        _player = GameObject.FindGameObjectWithTag("Player").GetComponent<Transform>();
         _camera = Camera.main;
     }
 
     private void LateUpdate()
     {
-        transform.position = _player.position;
+        transform.position = player.position;
         
         if (_wasTargeting && !TargetFinder.Instance.OnTarget)
         {
@@ -29,17 +28,13 @@ public class PivotController : MonoBehaviour
         if (TargetFinder.Instance.OnTarget)
         {
             var targetViewPos = _camera.WorldToViewportPoint(TargetFinder.Instance.CurrentTarget.position);
-            var dir = TargetFinder.Instance.CurrentTarget.position - _player.position;
+            var dir = TargetFinder.Instance.CurrentTarget.position - player.position;
 
-            switch (targetViewPos.y)
+            if (!Mathf.Approximately(targetViewPos.y, 0.67f))
             {
-                case > 0.7f:
-                    _vRotation -= 0.05f;
-                    break;
-                case < 0.65f:
-                    _vRotation += 0.05f;
-                    break;
+                _vRotation -= (targetViewPos.y - 0.67f) * 2;
             }
+
             _hRotation = Mathf.MoveTowardsAngle(_hRotation,
                 Quaternion.LookRotation(dir, transform.up).eulerAngles.y, 200 * Time.deltaTime);
         }
@@ -62,8 +57,8 @@ public class PivotController : MonoBehaviour
             }
             else
             {
-                _vRotation -= PlayerInput.MouseInput.y * .4f;
-                _hRotation += PlayerInput.MouseInput.x * .4f;
+                _vRotation -= PlayerInput.Instance.MouseInput.y;
+                _hRotation += PlayerInput.Instance.MouseInput.x;
             }
         }
         

@@ -19,7 +19,7 @@ public class CameraController : MonoBehaviour
         Cursor.lockState = CursorLockMode.Locked;
         Cursor.visible = false;
 
-        _originalCameraDistance = 6f;
+        _originalCameraDistance = 5f;
     }
     
     private void LateUpdate()
